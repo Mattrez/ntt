@@ -181,7 +181,7 @@ static void
 SaveOldBytes(ByteType Type, u64 ByteValue)
 {
 	FILE *File = 0;
-	char Buffer[U64LEN + 1];
+	char Buffer[U64LEN + 1] = { 0 };
 	sprintf(Buffer, "%lu\n", ByteValue);
 
 	if(Type == TRANSMIT)
@@ -204,7 +204,7 @@ ReadOldBytes(ByteType Type)
 {
 	u64 Result = 0;
 	FILE *File = 0;
-	char Buffer[U64LEN + 1];
+	char Buffer[U64LEN + 1] = { 0 };
 
 	if(Type == TRANSMIT)
 	{
