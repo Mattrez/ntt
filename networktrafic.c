@@ -70,6 +70,7 @@ GetInterfaces(dirent *Interfaces)
 
 	if(!Dir)
 	{
+		close(DirDesc);
 		printf("Cannot open directory -> %s\n", GInterfacePath);
 		return;
 	}
@@ -139,7 +140,7 @@ GetBytes(ByteType Type)
 	u64 Result = 0;
 	for(u32 i = 0; i < MAXINTERFACES; i++)
 	{
-		FILE *File = 0;
+		int File = 0;
 		char NumberBuffer[U64LEN + 1] = { 0 };
 
 		if(Interface->d_ino == 0)
@@ -154,7 +155,7 @@ GetBytes(ByteType Type)
 			strcat(FilePath, Interface->d_name);
 			strcat(FilePath, "/statistics/tx_bytes");
 
-			File = fopen(FilePath, "r");
+			File = open(FilePath, O_RDONLY);
 		}
 		else if(Type == RECIVE)
 		{
@@ -162,11 +163,11 @@ GetBytes(ByteType Type)
 			strcat(FilePath, Interface->d_name);
 			strcat(FilePath, "/statistics/rx_bytes");
 
-			File = fopen(FilePath, "r");
+			File = open(FilePath, O_RDONLY);
 		}
 
-		fread(NumberBuffer, U64LEN + 1, 1, File);
-		fclose(File);
+		read(File, NumberBuffer, U64LEN + 1);
+		close(File);
 
 		NumberBuffer[StringLen(NumberBuffer)] = '\0';
 		Result += StringToU64(NumberBuffer);
@@ -180,41 +181,41 @@ GetBytes(ByteType Type)
 static void
 SaveOldBytes(ByteType Type, u64 ByteValue)
 {
-	FILE *File = 0;
+	int File = 0;
 	char Buffer[U64LEN + 1] = { 0 };
 	sprintf(Buffer, "%lu\n", ByteValue);
 
 	if(Type == TRANSMIT)
 	{
 		const char *FilePath = "/tmp/old_tx";
-		File = fopen(FilePath, "w");
+		File = open(FilePath, O_RDONLY);
 	}
 	else if(Type == RECIVE)
 	{
 		const char *FilePath = "/tmp/old_rx";
-		File = fopen(FilePath, "w");
+		File = open(FilePath, O_RDONLY);
 	}
 
-	fwrite(Buffer, StringLen(Buffer), 1, File);
-	fclose(File);
+	write(File, Buffer, StringLen(Buffer));
+	close(File);
 }
 
 static u64
 ReadOldBytes(ByteType Type)
 {
 	u64 Result = 0;
-	FILE *File = 0;
+	int File = 0;
 	char Buffer[U64LEN + 1] = { 0 };
 
 	if(Type == TRANSMIT)
 	{
 		const char *FilePath = "/tmp/old_tx";
-		File = fopen(FilePath, "r");
+		File = open(FilePath, O_RDONLY);
 	}
 	else if(Type == RECIVE)
 	{
 		const char *FilePath = "/tmp/old_rx";
-		File = fopen(FilePath, "r");
+		File = open(FilePath, O_RDONLY);
 	}
 
 	if(!File)
@@ -222,8 +223,8 @@ ReadOldBytes(ByteType Type)
 		return GetBytes(Type);
 	} // if there is no old bytes file, return old bytes as current bytes
 
-	fread(Buffer, U64LEN + 1, 1, File);
-	fclose(File);
+	read(File, Buffer, U64LEN + 1);
+	close(File);
 
 	Result = StringToU64(Buffer);
 
