@@ -64,6 +64,11 @@ GetInterfaces(dirent *Interfaces)
 {
 	int DirDesc = 0;
 	DirDesc = open(GInterfacePath, O_RDONLY);
+	if(DirDesc == -1)
+	{
+		printf("Failed to open diretory with interfaces\n");
+		return;
+	}
 
 	DIR *Dir;
 	Dir = fdopendir(DirDesc);
@@ -155,7 +160,7 @@ GetBytes(ByteType Type)
 			strcat(FilePath, Interface->d_name);
 			strcat(FilePath, "/statistics/tx_bytes");
 
-			File = open(FilePath, O_RDONLY);
+			File = open(FilePath, O_RDONLY, 0777);
 		}
 		else if(Type == RECIVE)
 		{
@@ -163,7 +168,7 @@ GetBytes(ByteType Type)
 			strcat(FilePath, Interface->d_name);
 			strcat(FilePath, "/statistics/rx_bytes");
 
-			File = open(FilePath, O_RDONLY);
+			File = open(FilePath, O_RDONLY, 0777);
 		}
 
 		read(File, NumberBuffer, U64LEN + 1);
@@ -188,12 +193,12 @@ SaveOldBytes(ByteType Type, u64 ByteValue)
 	if(Type == TRANSMIT)
 	{
 		const char *FilePath = "/tmp/old_tx";
-		File = open(FilePath, O_RDONLY);
+		File = open(FilePath, O_WRONLY | O_CREAT, 0777);
 	}
 	else if(Type == RECIVE)
 	{
 		const char *FilePath = "/tmp/old_rx";
-		File = open(FilePath, O_RDONLY);
+		File = open(FilePath, O_WRONLY | O_CREAT, 0777);
 	}
 
 	write(File, Buffer, StringLen(Buffer));
@@ -210,15 +215,15 @@ ReadOldBytes(ByteType Type)
 	if(Type == TRANSMIT)
 	{
 		const char *FilePath = "/tmp/old_tx";
-		File = open(FilePath, O_RDONLY);
+		File = open(FilePath, O_RDONLY, 0777);
 	}
 	else if(Type == RECIVE)
 	{
 		const char *FilePath = "/tmp/old_rx";
-		File = open(FilePath, O_RDONLY);
+		File = open(FilePath, O_RDONLY, 0777);
 	}
 
-	if(!File)
+	if(File == -1)
 	{
 		return GetBytes(Type);
 	} // if there is no old bytes file, return old bytes as current bytes
