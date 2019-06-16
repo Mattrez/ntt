@@ -267,6 +267,11 @@ int main(void)
 	u64 RXBytes = GetBytes(RECIVE);
 	u64 OldRX = ReadOldBytes(RECIVE);
 
+	if(RXBytes == 0)
+	{
+		OldRX = 0;
+	}
+
 	u64 DiffRecv = RXBytes - OldRX;
 
 	OldRX = RXBytes;
@@ -278,6 +283,11 @@ int main(void)
 	u64 TXBytes = GetBytes(TRANSMIT);
 	u64 OldTX = ReadOldBytes(TRANSMIT);
 
+	if(TXBytes == 0)
+	{
+		OldTX = 0;
+	}
+
 	u64 DiffTran = TXBytes - OldTX;
 
 	OldTX = TXBytes;
@@ -286,11 +296,28 @@ int main(void)
 	compressed_bytes CompressedTX = CompressBytes(DiffTran);
 	TrunkcateBytes(&CompressedTX);
 
-	printf("%u%cB/s %u%cB/s\n",
-			 CompressedRX.Bytes,
-			 GCompressedLetter[CompressedRX.Order],
-			 CompressedTX.Bytes,
-			 GCompressedLetter[CompressedTX.Order]);
+	char RXPrint[16] = { 0 };
+	char TXPrint[16] = { 0 };
+
+	if(RXBytes == 0)
+	{
+		sprintf(RXPrint, "N/a");
+	} // if RXBytes if empty, not bytes recived
+	else
+	{
+		sprintf(RXPrint, "%u%cB/s", CompressedRX.Bytes, GCompressedLetter[CompressedRX.Order]);
+	} // else print to char bytes formated
+
+	if(TXBytes == 0)
+	{
+		sprintf(TXPrint, "N/a");
+	} // if TXBytes if empty, not bytes recived
+	else
+	{
+		sprintf(TXPrint, "%u%cB/s", CompressedTX.Bytes, GCompressedLetter[CompressedTX.Order]);
+	} // else print to char bytes formated
+
+	printf("%s %s\n", RXPrint, TXPrint);
 
 	return 0;
 }
