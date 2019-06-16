@@ -271,6 +271,10 @@ int main(void)
 	{
 		OldRX = 0;
 	}
+	else if(OldRX == 0)
+	{
+		OldRX = RXBytes;
+	}
 
 	u64 DiffRecv = RXBytes - OldRX;
 
@@ -286,6 +290,10 @@ int main(void)
 	if(TXBytes == 0)
 	{
 		OldTX = 0;
+	}
+	else if(OldTX == 0)
+	{
+		OldTX = TXBytes;
 	}
 
 	u64 DiffTran = TXBytes - OldTX;
