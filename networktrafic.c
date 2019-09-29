@@ -187,18 +187,21 @@ static void
 SaveOldBytes(ByteType Type, u64 ByteValue)
 {
 	int File = 0;
+	int FileOFlag = 0;
 	char Buffer[U64LEN + 1] = { 0 };
 	sprintf(Buffer, "%lu\n", ByteValue);
+
+	FileOFlag = O_WRONLY | O_TRUNC | O_CREAT;
 
 	if(Type == TRANSMIT)
 	{
 		const char *FilePath = "/tmp/old_tx";
-		File = open(FilePath, O_WRONLY | O_CREAT, 0777);
+		File = open(FilePath, FileOFlag, 0777);
 	}
 	else if(Type == RECIVE)
 	{
 		const char *FilePath = "/tmp/old_rx";
-		File = open(FilePath, O_WRONLY | O_CREAT, 0777);
+		File = open(FilePath, FileOFlag, 0777);
 	}
 
 	write(File, Buffer, StringLen(Buffer));
